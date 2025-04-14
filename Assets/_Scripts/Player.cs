@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
         {
             Vector3 gravity = Vector3.up * normalGravity * fallGravityMult;
             rb.AddForce(gravity, ForceMode.Acceleration);
-        } 
+        }
     }
     void FixedUpdate()
     {

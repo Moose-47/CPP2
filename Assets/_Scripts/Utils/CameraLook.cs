@@ -3,23 +3,33 @@ using UnityEngine;
 public class CameraLook : MonoBehaviour
 {
 
+    public Transform player;
+    public Transform cameraTransform; 
     public float sensitivityX = 10f;
     public float sensitivityY = 10f;
-    public Transform player;
+    public float minY = -5f;
+    public float maxY = 60f;
+    public float distanceFromPlayer = 5f;
 
     private float rotationX = 0f;
+    private float rotationY = 0f;
 
-    // Update is called once per frame
+   
     void Update()
     {
         float mouseX = Input.GetAxis("Mouse X") * sensitivityX;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivityY;
 
+        rotationY += mouseX;
         rotationX -= mouseY;
-        rotationX = Mathf.Clamp(rotationX, -10f, 15f);
+        rotationX = Mathf.Clamp(rotationX, minY, maxY);
 
-        transform.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
+        //Rotate around the player
+        transform.position = player.position;
+        transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
 
-        player.Rotate(Vector3.up * mouseX);
+        //Set the camera's position behind the pivot point
+        cameraTransform.position = transform.position - transform.forward * distanceFromPlayer;
+        cameraTransform.LookAt(player.position + Vector3.up * 1.5f);
     }
 }
