@@ -225,6 +225,9 @@ MonoBehaviour:
   moveAccel: 0
   jumpHeight: 0.1
   jumpTime: 0.7
+  timeToJumpApex: 0
+  initJumpVelocity: 0
+  gravity: 0
 --- !u!143 &282410264
 CharacterController:
   m_ObjectHideFlags: 0
