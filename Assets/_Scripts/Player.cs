@@ -51,25 +51,61 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         UpdateCharacterVelocity();
 
         cc.Move(velocity);
-    }   
-    
+    }
+
     private void UpdateCharacterVelocity()
     {
         if (direction == Vector2.zero) curSpeed = initSpeed;
 
-        velocity.x = direction.x * curSpeed;
-        velocity.z = direction.y * curSpeed;
+        //Get the camera's forward and right vectors
+        Vector3 camForward = Camera.main.transform.forward;
+        Vector3 camRight = Camera.main.transform.right;
 
+        //Flatten the vectors to ignore vertical tilt
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        //Convert the 2D input direction into a 3D movement direction
+        Vector3 moveDirection = camForward * direction.y + camRight * direction.x;
+
+        //Apply movement
+        velocity.x = moveDirection.x * curSpeed;
+        velocity.z = moveDirection.z * curSpeed;
+
+        //Accelerate
         curSpeed += moveAccel * Time.fixedDeltaTime;
 
-        if (!cc.isGrounded) velocity.y += gravity * Time.fixedDeltaTime;
-        else velocity.y = CheckJump();
+        if (moveDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+        }
+
+        //Gravity & Jump
+        if (!IsGrounded())
+        {
+            velocity.y += gravity * Time.fixedDeltaTime;
+        }
+        else
+        {
+            velocity.y = CheckJump();
+        }
+    }
+
+    private bool IsGrounded()
+    {
+        float checkDistance = 1f;
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        return Physics.SphereCast(origin, 0.3f, Vector3.down, out RaycastHit hit, checkDistance);
     }
 
     private float CheckJump()
     {
-        if (isJumpPressed) return initJumpVelocity;
-        else return -cc.minMoveDistance;
+        if (isJumpPressed && velocity.y <= 0.01f)
+            return initJumpVelocity;
+        return -cc.minMoveDistance;
     }
     void OnEnable()
     {

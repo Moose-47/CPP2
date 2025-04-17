@@ -14,7 +14,10 @@ public class CameraLook : MonoBehaviour
     private float rotationX = 0f;
     private float rotationY = 0f;
 
-   
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
     void Update()
     {
         float mouseX = Input.GetAxis("Mouse X") * sensitivityX;
