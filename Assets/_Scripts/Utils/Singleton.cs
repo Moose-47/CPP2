@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
@@ -9,13 +10,25 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
     {
         get
         {
-            if (instance == null)
-                instance = FindAnyObjectByType<T>();
-            if (instance == null)
+            try
             {
-                GameObject obj = new GameObject($"{typeof(T).Name}");
-                instance = obj.AddComponent<T>();
-                DontDestroyOnLoad(obj);
+                //Try to find existing instance in the scene
+                instance = FindAnyObjectByType<T>();
+
+                if (instance == null) //If no instance exists, create a new GameObject and attach the component
+                {               
+                    GameObject obj = new GameObject($"{typeof(T).Name}");
+                    instance = obj.AddComponent<T>();
+                    DontDestroyOnLoad(obj);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                //this code will always run
             }
             return instance;
         }
