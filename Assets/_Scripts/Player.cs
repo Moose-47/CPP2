@@ -1,18 +1,18 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+
 
 public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 {
     //private Rigidbody rb;
     CharacterController cc;
     ProjectActions input;
+    public MeshRenderer playerMesh;
 
     #region Character Controller movement variables
     [Header("Movement Variables")]
     [SerializeField] private float initSpeed = 5.0f;
-    [SerializeField] private float maxSpeed = 15.0f;
+    //[SerializeField] private float maxSpeed = 15.0f;
     [SerializeField] private float moveAccel = 0.2f;
     private float curSpeed = 5.0f;
 
@@ -32,12 +32,15 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     //calculated based on our jump values - this is the Y velocity that we will apply
     [SerializeField] private float gravity;
+
+    private bool isDead = false;
     #endregion
    
     void Start()
     {
         //rb = GetComponent<Rigidbody>();
         cc = GetComponent<CharacterController>();
+        playerMesh = GetComponent<MeshRenderer>();
 
         #region CC jump variable values
         timeToJumpApex = jumpTime / 2;
@@ -48,6 +51,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     void FixedUpdate()
     {
+        if (isDead) return;
         UpdateCharacterVelocity();
 
         cc.Move(velocity);
@@ -128,7 +132,33 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     }
     public void OnJump(InputAction.CallbackContext context) => isJumpPressed = context.ReadValueAsButton();
 
-    #endregion 
+    public void die()
+    {
+        isDead = true;
+        input.Disable();
+        cc.enabled = false;
+        velocity = Vector3.zero;
+        gravity = 0;
+
+        Transform cameraTransform = transform.Find("Main Camera");
+        if (cameraTransform != null)
+        {
+            cameraTransform.SetParent(null);
+        }
+        Destroy(gameObject); 
+    }
+   
+    public void ReceiveDmg(int DamageValue, DamageType damageType = DamageType.Default)
+    {
+        GameManager.Instance.PlayerHealth -= DamageValue;
+    }
+    public enum DamageType
+    {
+        Default,
+        Melee,
+        Ranged
+    }
+    #endregion
     #region Rigid Body Movement variables
     //[Header("rigid body movement")]
     //public float speed = 5f;
@@ -153,7 +183,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     //        Vector3 gravity = Vector3.up * normalGravity * fallGravityMult;
     //        rb.AddForce(gravity, ForceMode.Acceleration);
     //    }
-        
+
     //}
     //void FixedUpdate()
     //{
