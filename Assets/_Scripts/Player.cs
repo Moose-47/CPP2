@@ -8,11 +8,12 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     CharacterController cc;
     ProjectActions input;
     public MeshRenderer playerMesh;
+    Animator anim;
 
     #region Character Controller movement variables
     [Header("Movement Variables")]
     [SerializeField] private float initSpeed = 5.0f;
-    //[SerializeField] private float maxSpeed = 15.0f;
+    [SerializeField] private float maxSpeed = 15.0f;
     [SerializeField] private float moveAccel = 0.2f;
     private float curSpeed = 5.0f;
 
@@ -33,6 +34,9 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     //calculated based on our jump values - this is the Y velocity that we will apply
     [SerializeField] private float gravity;
 
+    [Header("Weapon Variables")]
+    [SerializeField] private Transform weaponAttachPoint;
+    Weapon weapon = null;
     private bool isDead = false;
     #endregion
    
@@ -41,7 +45,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         //rb = GetComponent<Rigidbody>();
         cc = GetComponent<CharacterController>();
         playerMesh = GetComponent<MeshRenderer>();
-
+        anim = GetComponentInChildren<Animator>();
         #region CC jump variable values
         timeToJumpApex = jumpTime / 2;
         gravity = (-2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
@@ -51,6 +55,8 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     void FixedUpdate()
     {
+        Vector2 groundVel = new Vector2(velocity.x, velocity.z);
+        anim.SetFloat("vel", groundVel.magnitude);
         if (isDead) return;
         UpdateCharacterVelocity();
 
@@ -80,6 +86,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
         //Accelerate
         curSpeed += moveAccel * Time.fixedDeltaTime;
+        curSpeed = Mathf.Clamp(curSpeed, 0f, maxSpeed);
 
         if (moveDirection != Vector3.zero)
         {
@@ -101,7 +108,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     private bool IsGrounded()
     {
         float checkDistance = 1f;
-        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        Vector3 origin = transform.position;
         return Physics.SphereCast(origin, 0.3f, Vector3.down, out RaycastHit hit, checkDistance);
     }
 
@@ -111,6 +118,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
             return initJumpVelocity;
         return -cc.minMoveDistance;
     }
+    #region Input Functions
     void OnEnable()
     {
         input = new ProjectActions();
@@ -124,14 +132,21 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         input.Overworld.RemoveCallbacks(this);
     }
 
-    #region Input Functions
     public void OnMove(InputAction.CallbackContext context)
     {
         if (context.performed) direction = context.ReadValue<Vector2>();
         if (context.canceled) direction = Vector2.zero;
     }
     public void OnJump(InputAction.CallbackContext context) => isJumpPressed = context.ReadValueAsButton();
-
+    public void OnDrop(InputAction.CallbackContext context)
+    {
+        if (weapon)
+        {
+            weapon.Drop(GetComponent<Collider>(), transform.forward);
+            weapon = null;
+        }
+    }
+    #endregion
     public void die()
     {
         isDead = true;
@@ -147,7 +162,15 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         }
         Destroy(gameObject); 
     }
-   
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("Weapon") && weapon == null)
+        {
+            weapon = hit.gameObject.GetComponent<Weapon>();
+            weapon.Equip(GetComponent<Collider>(), weaponAttachPoint);
+        }
+    }
     public void ReceiveDmg(int DamageValue, DamageType damageType = DamageType.Default)
     {
         GameManager.Instance.PlayerHealth -= DamageValue;
@@ -158,7 +181,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         Melee,
         Ranged
     }
-    #endregion
+
     #region Rigid Body Movement variables
     //[Header("rigid body movement")]
     //public float speed = 5f;
