@@ -10,40 +10,39 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
     {
         get
         {
-            try
+           if (instance == null)
             {
-                //Try to find existing instance in the scene
-                instance = FindAnyObjectByType<T>();
+                instance = FindFirstObjectByType<T>();
 
-                if (instance == null) //If no instance exists, create a new GameObject and attach the component
-                {               
+                if (instance == null)
+                {
                     GameObject obj = new GameObject($"{typeof(T).Name}");
                     instance = obj.AddComponent<T>();
                     DontDestroyOnLoad(obj);
                 }
+                else
+                {
+                    DontDestroyOnLoad(instance.gameObject);
+                }
             }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-            finally
-            {
-                //this code will always run
-            }
-            return instance;
+
+           return instance;
         }
     }
 
     //virtual allows the function to be overridden by child classes
     protected virtual void Awake()
     {
-        if (!instance)
+        if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(instance);
-            return;
+            DontDestroyOnLoad(gameObject);
+            Debug.Log($"Singletone instance {typeof(T)} created.");
         }
-
-        Destroy(gameObject);
+        else
+        {
+            Debug.Log($"Singletone instance {typeof(T)} instance destroyed.");
+            Destroy(gameObject);
+        }
     }
 }

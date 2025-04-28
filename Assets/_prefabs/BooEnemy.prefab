@@ -159,8 +159,10 @@ MonoBehaviour:
   moveSpeed: 0.75
   meleeDmg: 100
   rangedDmg: 1
-  atkRange: 5
+  atkRange: 10
   followRange: 15
   rayOrigin: {fileID: 7766235079709885960}
+  projectilePrefab: {fileID: 6017337731015654524, guid: 9ff2fb1049155be4097ca17d854b4da2, type: 3}
+  shootingDelay: 3
   fadeSpeed: 2
   detectionAngle: 60

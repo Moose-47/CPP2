@@ -44,6 +44,7 @@ public class GameManager : Singleton<GameManager>
                 _player.die();
                 StartCoroutine(playerDeath(1.5f));
                 Debug.Log("Player dead!");
+                _playerHealth = maxHP;
             }
         }
     }
@@ -51,6 +52,8 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake()
     {
         base.Awake();
+
+
 
         playerPrefab = Resources.Load<GameObject>("Player");
 

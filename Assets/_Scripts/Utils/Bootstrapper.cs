@@ -5,14 +5,16 @@ public class Bootstrapper : Singleton<Bootstrapper>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void BootstrapGame()
     {
+        if (GameManager.Instance == null)
+        {
+            CheckScene("Bootstrap");
+        }
         CheckScene("Bootstrap");
     }
 
     private void Start()
     {
-        {
-            CheckScene("Game");
-        }
+        CheckScene("Game");
     }
 
     public static void CheckScene(string sceneName)

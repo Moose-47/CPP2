@@ -5,6 +5,10 @@ using UnityEngine.Rendering;
 public class BooEnemy : EnemyBaseClass
 {
     public Transform rayOrigin;
+    public GameObject projectilePrefab;
+
+    public float shootingDelay = 4f;
+    private float timeSinceLastShot = 0f;
 
     [Header("Boo Settings")]
     private Transform player;
@@ -14,7 +18,10 @@ public class BooEnemy : EnemyBaseClass
     private MeshRenderer rend;
     private Color originalColor;
     private float targetAlpha = 1f;
-
+    private MeshCollider eCollision;
+    private bool canMove = true;
+    private float movePauseTimer = 0f;
+    private float movePauseDuration = 0.5f;
     #region player spawning
     private void OnEnable()
     {
@@ -44,6 +51,8 @@ public class BooEnemy : EnemyBaseClass
         {
             originalColor = rend.material.color;
         }
+
+        eCollision = GetComponent<MeshCollider>();
     }
 
     protected override void Update()
@@ -55,28 +64,48 @@ public class BooEnemy : EnemyBaseClass
         if (IsPlayerLookingAtMe())
         {
             targetAlpha = 0f;
+            eCollision.enabled = false;
         }
         else
         {
+            eCollision.enabled = true;
             targetAlpha = 1f;
         }
 
         Color color = rend.material.color;
         color.a = Mathf.Lerp(color.a, targetAlpha, fadeSpeed * Time.deltaTime);
-        rend.material.color = color;
+        rend.material.color = color;        
     }
 
     private bool IsPlayerLookingAtMe()
     {
+        if (player == null) return false;
+        
         Vector3 toEnemy = (transform.position - player.position).normalized;
         Vector3 playerForward = player.forward;
 
         float angle = Vector3.Angle(playerForward, toEnemy);
+        float distance = Vector3.Distance(transform.position, player.position);
+        
+        if (distance <= 2.5f)
+        {
+            return true;
+        }
         return angle < detectionAngle;
     }
     protected override void HandleMovement()
     {
+        if (!canMove)
+        {
+            movePauseTimer -= Time.deltaTime;
+            if (movePauseTimer <= 0f)
+            {
+                canMove = true;
+            }
+            return;
+        }
         if (IsPlayerLookingAtMe()) return;
+        if (player == null) return;
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance < followRange)
         { 
@@ -133,21 +162,34 @@ public class BooEnemy : EnemyBaseClass
 
     protected override void HandleAttack()
     {
-        //if (player == null) return;
+        if (player == null) return;
 
-        //float distance = Vector3.Distance(transform.position, player.position);
-        //if (distance <= atkRange)
-        //{
-        //    //attack logic
-        //    return;
-        //}
+        if (IsPlayerLookingAtMe()) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+        if (distance <= atkRange && Time.time - timeSinceLastShot >= shootingDelay)
+        {
+            ShootProjectile();
+            timeSinceLastShot = Time.time;
+        }
+    }
+
+    private void ShootProjectile()
+    {
+        Vector3 shootDirection = (player.position - transform.position).normalized;
+        Vector3 projSpawn = rayOrigin.position + Vector3.up * 0.5f + shootDirection * 1f;
+        GameObject proj = Instantiate(projectilePrefab, projSpawn, Quaternion.identity);
+        
+        proj.transform.forward = shootDirection;
+
+        canMove = false;
+        movePauseTimer = movePauseDuration;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("player touched");
             Player playerObj = other.GetComponent<Player>();
             if (playerObj != null)
             {

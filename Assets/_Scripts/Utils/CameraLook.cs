@@ -20,19 +20,22 @@ public class CameraLook : MonoBehaviour
     }
     void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * sensitivityX;
-        float mouseY = Input.GetAxis("Mouse Y") * sensitivityY;
+        if (player != null) 
+        { 
+            float mouseX = Input.GetAxis("Mouse X") * sensitivityX;
+            float mouseY = Input.GetAxis("Mouse Y") * sensitivityY;
 
-        rotationY += mouseX;
-        rotationX -= mouseY;
-        rotationX = Mathf.Clamp(rotationX, minY, maxY);
+            rotationY += mouseX;
+            rotationX -= mouseY;
+            rotationX = Mathf.Clamp(rotationX, minY, maxY);
 
-        //Rotate around the player
-        transform.position = player.position;
-        transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
+            //Rotate around the player
+            transform.position = player.position;
+            transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
 
-        //Set the camera's position behind the pivot point
-        cameraTransform.position = transform.position - transform.forward * distanceFromPlayer;
-        cameraTransform.LookAt(player.position + Vector3.up * 1.5f);
+            //Set the camera's position behind the pivot point
+            cameraTransform.position = transform.position - transform.forward * distanceFromPlayer;
+            cameraTransform.LookAt(player.position + Vector3.up * 1.5f);
+        }
     }
 }
