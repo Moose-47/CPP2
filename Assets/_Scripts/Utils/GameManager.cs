@@ -11,6 +11,8 @@ public class GameManager : Singleton<GameManager>
 
     private GameObject playerPrefab;
 
+    private MenuController MenuController;
+
     [Header("Game Events")]
     public UnityEvent<int> OnLifeValueChanged;
     public UnityEvent<int> OnScoreGained;
@@ -48,7 +50,7 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
-
+    public void SetMenuController(MenuController menuController) => this.MenuController = menuController;
     protected override void Awake()
     {
         base.Awake();
@@ -82,5 +84,11 @@ public class GameManager : Singleton<GameManager>
         yield return new WaitForSeconds(delay);
 
         SceneManager.LoadScene("Game");
+    }
+
+    public void ChangeScene(string sceneName)
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(sceneName);
     }
 }
