@@ -12,9 +12,10 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     #region Character Controller movement variables
     [Header("Movement Variables")]
-    [SerializeField] private float initSpeed = 5.0f;
+    //[SerializeField] private float initSpeed = 5.0f;
     [SerializeField] private float maxSpeed = 15.0f;
     [SerializeField] private float moveAccel = 0.2f;
+    [SerializeField] private float deceleration = 5f;
     private float curSpeed = 5.0f;
 
     //Character Movement Variables
@@ -55,9 +56,29 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     void FixedUpdate()
     {
+        if (isDead) return;
         Vector2 groundVel = new Vector2(velocity.x, velocity.z);
         anim.SetFloat("vel", groundVel.magnitude);
-        if (isDead) return;
+
+        float jumpVel = 0f;
+        if (!IsGrounded())
+        {
+            if (velocity.y > 0f)
+            {
+                jumpVel = Mathf.Lerp(anim.GetFloat("jumpVel"), 1f, 10f * Time.fixedDeltaTime);
+            }
+            else
+            {
+                jumpVel = Mathf.Lerp(anim.GetFloat("jumpVel"), -1f, 1.5f * Time.fixedDeltaTime);
+            }
+        }
+        else
+        {
+            jumpVel = Mathf.Lerp(anim.GetFloat("jumpVel"), 0f, 10f * Time.fixedDeltaTime);
+        }
+        anim.SetFloat("jumpVel", jumpVel);
+
+        
         UpdateCharacterVelocity();
 
         cc.Move(velocity);
@@ -65,36 +86,48 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     private void UpdateCharacterVelocity()
     {
-        if (direction == Vector2.zero) curSpeed = initSpeed;
-
-        //Get the camera's forward and right vectors
+        // Get camera vectors
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
 
-        //Flatten the vectors to ignore vertical tilt
+        // Flatten camera vectors
         camForward.y = 0f;
         camRight.y = 0f;
         camForward.Normalize();
         camRight.Normalize();
 
-        //Convert the 2D input direction into a 3D movement direction
+        // Get intended movement direction
         Vector3 moveDirection = camForward * direction.y + camRight * direction.x;
 
-        //Apply movement
-        velocity.x = moveDirection.x * curSpeed;
-        velocity.z = moveDirection.z * curSpeed;
-
-        //Accelerate
-        curSpeed += moveAccel * Time.fixedDeltaTime;
-        curSpeed = Mathf.Clamp(curSpeed, 0f, maxSpeed);
-
-        if (moveDirection != Vector3.zero)
+        // Speed control
+        if (direction != Vector2.zero)
         {
+            // Accelerate
+            curSpeed += moveAccel * Time.fixedDeltaTime;
+            curSpeed = Mathf.Clamp(curSpeed, 0f, maxSpeed);
+
+            // Apply velocity in direction
+            velocity.x = moveDirection.x * curSpeed;
+            velocity.z = moveDirection.z * curSpeed;
+
+            // Rotate player toward move direction
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
         }
+        else
+        {
+            // Decelerate
+            curSpeed -= deceleration * Time.fixedDeltaTime;
+            curSpeed = Mathf.Clamp(curSpeed, 0f, maxSpeed);
 
-        //Gravity & Jump
+            // Smoothly reduce horizontal velocity
+            Vector3 horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
+            horizontalVelocity = Vector3.Lerp(horizontalVelocity, Vector3.zero, deceleration * Time.fixedDeltaTime);
+            velocity.x = horizontalVelocity.x;
+            velocity.z = horizontalVelocity.z;
+        }
+
+        // Gravity & Jump
         if (!IsGrounded())
         {
             velocity.y += gravity * Time.fixedDeltaTime;
@@ -102,6 +135,12 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         else
         {
             velocity.y = CheckJump();
+        }
+
+        if (direction == Vector2.zero && new Vector2(velocity.x, velocity.z).magnitude < 0.1f)
+        {
+            velocity.x = 0f;
+            velocity.z = 0f;
         }
     }
 
@@ -137,7 +176,11 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         if (context.performed) direction = context.ReadValue<Vector2>();
         if (context.canceled) direction = Vector2.zero;
     }
-    public void OnJump(InputAction.CallbackContext context) => isJumpPressed = context.ReadValueAsButton();
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        isJumpPressed = context.ReadValueAsButton();
+    }
+
     public void OnDrop(InputAction.CallbackContext context)
     {
         if (weapon)

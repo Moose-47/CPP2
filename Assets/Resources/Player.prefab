@@ -103,9 +103,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerMesh: {fileID: 0}
-  initSpeed: 0.2
   maxSpeed: 0.25
-  moveAccel: 0.05
+  moveAccel: 0.4
+  deceleration: 3
   jumpHeight: 0.1
   jumpTime: 0.7
   timeToJumpApex: 0
@@ -339,7 +339,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4b3c7ff19e18c6747b1305fb61fc07be, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: -1.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4b3c7ff19e18c6747b1305fb61fc07be, type: 3}
       propertyPath: m_LocalPosition.z
