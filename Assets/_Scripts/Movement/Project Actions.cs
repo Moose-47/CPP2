@@ -53,6 +53,24 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockOn"",
+                    ""type"": ""Button"",
+                    ""id"": ""b0675cc7-d8ff-4649-abf5-1ceb5b60865a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Attack"",
+                    ""type"": ""Button"",
+                    ""id"": ""f486d9aa-36ec-4c34-aa60-1b7ca2e66fa9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -198,6 +216,28 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
                     ""action"": ""Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""31d678eb-108f-4df2-9ed8-ac1e6957caea"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LockOn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""66ff596c-d305-4a41-9e6a-3652034c3419"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -209,6 +249,8 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
         m_Overworld_Move = m_Overworld.FindAction("Move", throwIfNotFound: true);
         m_Overworld_Jump = m_Overworld.FindAction("Jump", throwIfNotFound: true);
         m_Overworld_Drop = m_Overworld.FindAction("Drop", throwIfNotFound: true);
+        m_Overworld_LockOn = m_Overworld.FindAction("LockOn", throwIfNotFound: true);
+        m_Overworld_Attack = m_Overworld.FindAction("Attack", throwIfNotFound: true);
     }
 
     ~@ProjectActions()
@@ -278,6 +320,8 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Overworld_Move;
     private readonly InputAction m_Overworld_Jump;
     private readonly InputAction m_Overworld_Drop;
+    private readonly InputAction m_Overworld_LockOn;
+    private readonly InputAction m_Overworld_Attack;
     public struct OverworldActions
     {
         private @ProjectActions m_Wrapper;
@@ -285,6 +329,8 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Overworld_Move;
         public InputAction @Jump => m_Wrapper.m_Overworld_Jump;
         public InputAction @Drop => m_Wrapper.m_Overworld_Drop;
+        public InputAction @LockOn => m_Wrapper.m_Overworld_LockOn;
+        public InputAction @Attack => m_Wrapper.m_Overworld_Attack;
         public InputActionMap Get() { return m_Wrapper.m_Overworld; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -303,6 +349,12 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
             @Drop.started += instance.OnDrop;
             @Drop.performed += instance.OnDrop;
             @Drop.canceled += instance.OnDrop;
+            @LockOn.started += instance.OnLockOn;
+            @LockOn.performed += instance.OnLockOn;
+            @LockOn.canceled += instance.OnLockOn;
+            @Attack.started += instance.OnAttack;
+            @Attack.performed += instance.OnAttack;
+            @Attack.canceled += instance.OnAttack;
         }
 
         private void UnregisterCallbacks(IOverworldActions instance)
@@ -316,6 +368,12 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
             @Drop.started -= instance.OnDrop;
             @Drop.performed -= instance.OnDrop;
             @Drop.canceled -= instance.OnDrop;
+            @LockOn.started -= instance.OnLockOn;
+            @LockOn.performed -= instance.OnLockOn;
+            @LockOn.canceled -= instance.OnLockOn;
+            @Attack.started -= instance.OnAttack;
+            @Attack.performed -= instance.OnAttack;
+            @Attack.canceled -= instance.OnAttack;
         }
 
         public void RemoveCallbacks(IOverworldActions instance)
@@ -338,5 +396,7 @@ public partial class @ProjectActions: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnDrop(InputAction.CallbackContext context);
+        void OnLockOn(InputAction.CallbackContext context);
+        void OnAttack(InputAction.CallbackContext context);
     }
 }

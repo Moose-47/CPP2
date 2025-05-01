@@ -193,7 +193,7 @@ public class BooEnemy : EnemyBaseClass
             Player playerObj = other.GetComponent<Player>();
             if (playerObj != null)
             {
-                playerObj.ReceiveDmg(meleeDmg, Player.DamageType.Melee);
+                playerObj.playerState.ReceiveDamage(meleeDmg);
             }
         }
     }
