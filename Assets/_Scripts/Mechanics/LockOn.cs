@@ -33,7 +33,6 @@ public class LockOn : MonoBehaviour
             {
                 playerState.SetLockOn(newTarget);
                 cameraController.ToggleLockOn(newTarget);
-                LookAtTarget(newTarget);
             }
             else
             {
@@ -44,18 +43,6 @@ public class LockOn : MonoBehaviour
         {
             playerState.ClearLockOn();
             cameraController.ToggleLockOn(null);
-        }
-    }
-
-    private void LookAtTarget(Transform target)
-    {
-        Vector3 direction = (target.position - player.position).normalized;
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude > 0f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            player.rotation = Quaternion.Slerp(player.rotation, targetRotation, 10f * Time.deltaTime);
         }
     }
 

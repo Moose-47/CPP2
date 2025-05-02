@@ -31,7 +31,7 @@ public class CameraController : MonoBehaviour
     private bool isPanningToPlayer = false;
 
     private Quaternion targetPanRotation = Quaternion.identity;
-    private Quaternion lockOnRotation;
+
     private void OnEnable()
     {
         GameManager.Instance.OnPlayerSpawned += OnPlayerSpawnedCallback;

@@ -11,6 +11,8 @@ public class PlayerState : MonoBehaviour
     public Transform weaponAttachPoint;
     private Weapon weapon;
 
+    [HideInInspector] public bool Equipped = false;
+
     public void SetLockOn(Transform target)
     {
         IsLockedOn = true;
@@ -28,6 +30,7 @@ public class PlayerState : MonoBehaviour
         {
             weapon.Drop(GetComponent<Collider>(), forward);
             weapon = null;
+            Equipped = false;
         }
     }
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -36,6 +39,7 @@ public class PlayerState : MonoBehaviour
         {
             weapon = hit.gameObject.GetComponent<Weapon>();
             weapon.Equip(GetComponent<Collider>(), weaponAttachPoint);
+            Equipped = true;
         }
     }
     public void ReceiveDamage(int dmg)
