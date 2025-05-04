@@ -34,19 +34,19 @@ public abstract class EnemyBaseClass : MonoBehaviour
     protected abstract void HandleAttack();
     protected virtual void Die()
     {
-        isDead = true;
-        //Play death animation
         Debug.Log($"{gameObject.name} has died.");
-        Destroy(gameObject, 2f); 
+        Destroy(gameObject, 5f);
+        Destroy(transform.parent?.gameObject, 5f);
     }
     public virtual void TakeDamage(int DamageValue, DamageType damageType = DamageType.Default)
     {
         if (isDead) return;
+        Debug.Log($"Damage Received: {DamageValue} | Current Health: {currentHealth}");
 
         switch (damageType)
         {
             case DamageType.Melee:
-                DamageValue -= 2;
+                DamageValue -= 2; 
                 break;
 
             case DamageType.Ranged:
@@ -55,7 +55,9 @@ public abstract class EnemyBaseClass : MonoBehaviour
         }
 
         currentHealth -= DamageValue;
-        if (currentHealth <- 0)
+        Debug.Log($"After Damage: {currentHealth}");
+
+        if (currentHealth <= 0)
         {
             Die();
         }

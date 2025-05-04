@@ -33,7 +33,7 @@ public class PlayerCombat : MonoBehaviour
             anim.EquippedAttack();
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
             playerState.isAttacking = true;
-            attackCoroutine = StartCoroutine(EndAttackAfter(1.5f));
+            attackCoroutine = StartCoroutine(EndAttackAfter(0.75f));
             return;
         }
     }

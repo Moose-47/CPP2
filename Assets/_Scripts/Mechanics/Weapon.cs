@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using static EnemyBaseClass;
 
 [RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
 public class Weapon : MonoBehaviour
@@ -38,5 +39,17 @@ public class Weapon : MonoBehaviour
         yield return new WaitForSeconds(2);
 
         Physics.IgnoreCollision(playerCollider, bc, false);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+
+        if (other.CompareTag("Enemy"))
+        {
+            EnemyBaseClass enemy = other.GetComponentInChildren<EnemyBaseClass>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(5);
+            }
+        }
     }
 }
