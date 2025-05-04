@@ -14,6 +14,7 @@ public class PlayerAnimations : MonoBehaviour
 
     public void UpdateAnimationVelocity(Vector3 velocity, bool isGrounded)
     {
+        #region Locomotion Animations
         if (playerState.Equipped) anim.SetBool("Equipped", true);
             else anim.SetBool("Equipped", false);
 
@@ -40,6 +41,19 @@ public class PlayerAnimations : MonoBehaviour
             anim.SetFloat("vel", locomotion.smoothedVel);
         }
         anim.SetFloat("jumpVel", locomotion.jumpVel);
+        #endregion
+    }
+    public void Punch()
+    {
+        anim.SetTrigger("Attack");
+    }
+    public void EquippedAttack()
+    {
+        anim.SetTrigger("Attack");
+    }
+    public void deathAnimation()
+    {
+        anim.SetTrigger("death");
     }
 }
         

@@ -5,6 +5,8 @@ public class PlayerState : MonoBehaviour
     [HideInInspector] public bool IsDead { get; private set; }
     [HideInInspector] public bool IsLockedOn { get; private set; }
 
+    [HideInInspector] public bool isAttacking = false;
+    [HideInInspector] public bool canCombo = true;
     [HideInInspector] public Transform lockedOnTarget;
 
     [Header("Weapon")]
@@ -17,12 +19,12 @@ public class PlayerState : MonoBehaviour
     {
         IsLockedOn = true;
         lockedOnTarget = target;
-        Debug.Log($"Player state lock on {IsLockedOn}");
+
     }
     public void ClearLockOn()
     {
         IsLockedOn = false;
-        Debug.Log($"Player state lock on {IsLockedOn}");
+
     }
     public void TryDropWeapon(Vector3 forward)
     {
@@ -56,6 +58,7 @@ public class PlayerState : MonoBehaviour
         {
             cameraTransform.SetParent(null);
         }
-        Destroy(gameObject); 
+       
+        //Destroy(gameObject); 
     }
 }

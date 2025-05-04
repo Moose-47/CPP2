@@ -1,21 +1,46 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
-    private Animator anim;
     private PlayerState playerState;
+    private PlayerAnimations anim;
 
-    public bool isAttacking = false;
-    private void Awake()
+    private Coroutine attackCoroutine;
+    void Awake()
     {
-        anim = GetComponentInChildren<Animator>();
-        playerState = GetComponentInChildren<PlayerState>();
+        playerState = GetComponent<PlayerState>();
+        anim = GetComponent<PlayerAnimations>();
     }
 
     public void Attack()
     {
-        if (!playerState.IsLockedOn || playerState.IsDead) return;
+        StartAttack();
+    }
 
-        isAttacking = true;
+    private void StartAttack()
+    {
+        if (!playerState.Equipped && !playerState.isAttacking)
+        {
+            anim.Punch();
+            if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            playerState.isAttacking = true;
+            attackCoroutine = StartCoroutine(EndAttackAfter(1.5f));
+            return;
+        }
+        if (playerState.Equipped && !playerState.isAttacking)
+        {
+            anim.EquippedAttack();
+            if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            playerState.isAttacking = true;
+            attackCoroutine = StartCoroutine(EndAttackAfter(1.5f));
+            return;
+        }
+    }
+
+    private IEnumerator EndAttackAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        playerState.isAttacking = false;
     }
 }

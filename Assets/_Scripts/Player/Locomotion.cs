@@ -42,6 +42,8 @@ public class Locomotion : MonoBehaviour
     void FixedUpdate()
     {
         if (playerState.IsDead) return;
+        if (playerState.isAttacking) return;
+        anim.SetBool("isGrounded", IsGrounded());
         if (playerState.IsLockedOn)
         {
             HandleLockedOnRotation(direction, playerState.lockedOnTarget);
@@ -137,7 +139,6 @@ public class Locomotion : MonoBehaviour
                 smoothedVel = Mathf.Abs(smoothedVel);
             }
         }
-        Debug.Log(smoothedVel);
 
         if (!IsGrounded())
         {

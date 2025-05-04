@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 8462862584218327256}
   - component: {fileID: 6543897535335291497}
   - component: {fileID: -3150384254971173373}
+  - component: {fileID: -63986670744471946}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -150,6 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerState: {fileID: 0}
   playerAnimations: {fileID: 0}
+  lockOn: {fileID: 0}
   maxSpeed: 0.25
   moveAccel: 0.5
   deceleration: 4
@@ -169,8 +171,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 012982141d492c24596b91d6b34e0b1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAttacking: 0
+  canCombo: 1
   lockedOnTarget: {fileID: 0}
   weaponAttachPoint: {fileID: 5577712155923960855}
+  Equipped: 0
 --- !u!114 &6543897535335291497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +206,18 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 8
+--- !u!114 &-63986670744471946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5187560898437166105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6530bf8ce59a64cb87b28a6b83b41a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5597104314923751526
 GameObject:
   m_ObjectHideFlags: 0

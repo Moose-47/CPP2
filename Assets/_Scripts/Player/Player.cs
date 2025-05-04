@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 {
     [HideInInspector] public Locomotion locomotion;
-    [HideInInspector] public PlayerAnimations playerAnimations;
+    [HideInInspector] public PlayerAnimations anim;
     [HideInInspector] public PlayerState playerState;
     [HideInInspector] public PlayerCombat combat;
     [HideInInspector] public ProjectActions input;
@@ -15,7 +15,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     private void OnEnable()
     {
         locomotion = GetComponentInChildren<Locomotion>();
-        playerAnimations = GetComponent<PlayerAnimations>();
+        anim = GetComponent<PlayerAnimations>();
         playerState = GetComponent<PlayerState>();
         combat = GetComponentInChildren<PlayerCombat>();
         lockOn = GetComponentInChildren<LockOn>();
@@ -54,14 +54,18 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.performed && locomotion.IsGrounded())
+        {
             combat.Attack();
+        }
     }
+
 
     public void OnLockOn(InputAction.CallbackContext context) => lockOn.HandleLockOnInput();
 
     public void die()
     {
         playerState.Die();
+        anim.deathAnimation();
     }
 }

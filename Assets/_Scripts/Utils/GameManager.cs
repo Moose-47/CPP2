@@ -44,7 +44,7 @@ public class GameManager : Singleton<GameManager>
             if (_playerHealth <= 0 && _player != null)
             {
                 _player.die();
-                StartCoroutine(playerDeath(1.5f));
+                StartCoroutine(playerDeath(3f));
                 Debug.Log("Player dead!");
                 _playerHealth = maxHP;
             }
@@ -82,7 +82,7 @@ public class GameManager : Singleton<GameManager>
     IEnumerator playerDeath(float delay)
     {
         yield return new WaitForSeconds(delay);
-
+        Destroy(playerPrefab);
         SceneManager.LoadScene("Game");
     }
 
