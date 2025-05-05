@@ -15,6 +15,7 @@ public class PlayerAnimations : MonoBehaviour
     public void UpdateAnimationVelocity(Vector3 velocity, bool isGrounded)
     {
         #region Locomotion Animations
+        anim.SetBool("isGrounded", locomotion.IsGrounded());
         if (playerState.Equipped) anim.SetBool("Equipped", true);
             else anim.SetBool("Equipped", false);
 
@@ -33,7 +34,7 @@ public class PlayerAnimations : MonoBehaviour
             {
                 anim.SetFloat("vel", locomotion.smoothedVel);
             }
-            else anim.SetFloat("vel", 0f);
+            else anim.SetFloat("vel", locomotion.smoothedVel);
         }
         else anim.SetBool("LockedOn", false);
         if (!playerState.IsLockedOn)

@@ -43,7 +43,6 @@ public class Locomotion : MonoBehaviour
     {
         if (playerState.IsDead) return;
         if (playerState.isAttacking) return;
-        anim.SetBool("isGrounded", IsGrounded());
         if (playerState.IsLockedOn)
         {
             HandleLockedOnRotation(direction, playerState.lockedOnTarget);
@@ -142,7 +141,7 @@ public class Locomotion : MonoBehaviour
 
         if (!IsGrounded())
         {
-            if (velocity.y > 0f)
+            if (velocity.y > 0.1f)
                 jumpVel = Mathf.Lerp(anim.GetFloat("jumpVel"), 1f, 10f * Time.fixedDeltaTime);
             else
                 jumpVel = Mathf.Lerp(anim.GetFloat("jumpVel"), -1f, 0.5f * Time.fixedDeltaTime);
@@ -196,13 +195,13 @@ public class Locomotion : MonoBehaviour
     {
         if (isJumpPressed && velocity.y <= 0.01f)
             return initJumpVelocity;
-        return -cc.minMoveDistance;
+        return velocity.y += gravity * Time.fixedDeltaTime;
     }
     public bool IsGrounded()
     {
         float checkDistance = 1f;
         Vector3 origin = transform.position;
-        return Physics.SphereCast(origin, 0.3f, Vector3.down, out RaycastHit hit, checkDistance);
+        return Physics.SphereCast(origin, 0.2f, Vector3.down, out RaycastHit hit, checkDistance);
     }
     public void HandleLockedOnRotation(Vector2 input, Transform target)
     {

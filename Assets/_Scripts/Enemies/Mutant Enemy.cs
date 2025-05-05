@@ -126,20 +126,6 @@ public class MutantEnemy : EnemyBaseClass
         isAttacking = false;
     }
 
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    Debug.Log("Collided with: " + collision.gameObject.name);
-    //    if (collision.collider.CompareTag("Weapon"))
-    //    {
-    //        TakeDamage(5, DamageType.Melee);
-    //    }
-    //    else if (collision.collider.CompareTag("Punch"))
-    //    {
-    //        TakeDamage(1, DamageType.Melee);
-    //    }
-    //}
-
     protected override void Die()
     {
         if (isDead) return;

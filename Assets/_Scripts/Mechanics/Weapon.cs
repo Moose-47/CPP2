@@ -18,7 +18,7 @@ public class Weapon : MonoBehaviour
     {
         //Setting our rigidbody to kinematic because we don't want to move via physics anymore
         rb.isKinematic = true;
-        //Setting oru box collider to be a trigger so we are not blocked by the sword collision
+        //Setting our box collider to be a trigger so we are not blocked by the sword collision
         bc.isTrigger = true;
         transform.SetParent(weaponAttachPoint);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
