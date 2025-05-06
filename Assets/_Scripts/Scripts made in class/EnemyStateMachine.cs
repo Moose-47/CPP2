@@ -2,12 +2,14 @@ using UnityEngine;
 using StateMachine;
 using UnityEngine.AI;
 using StateMachine.Editor;
+using System;
 
 public class EnemyStateMachine : StateMachine<EnemyContext>
 {
     public IState<EnemyContext> idleState;
     public IState<EnemyContext> patrolState;
     public IState<EnemyContext> chaseState;
+    public IState<EnemyContext> atkState;
 
 
     void Start()
@@ -41,18 +43,63 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
 
         idleState.AddTransition(this)
             .To(patrolState)
-            .When(idleToPatrolFunction)
+            .When(idleToPatrol)
             .WithAction(() => Debug.Log("Action for idle to patrol"))
+            .WithPriority(10)
+            .To(atkState)
+            .When(anyStateToAtk)
             .WithPriority(10);
 
+        patrolState.AddTransition(this)
+            .To(idleState)
+            .When(patrolToIdle)
+            .WithAction(() => Debug.Log("Action for patrol to idle"))
+            .WithPriority(10)
+            .To(chaseState)
+            .When(patrolToChase)
+            .WithAction(() => Debug.Log("Action for patrol to chase"))
+            .WithPriority(10)
+            .To(atkState)
+            .When(anyStateToAtk)
+            .WithPriority(10);
+
+        chaseState.AddTransition(this)
+            .To(idleState)
+            .When(chaseToIdle)
+            .WithAction(() => Debug.Log("Action for chase to idle"))
+            .WithPriority(10)
+            .To(atkState)
+            .When(anyStateToAtk)
+            .WithPriority(10);
 
         StateMachineRegistry.RegisterStateMachine(this, "EnemyStateMachine");
     }
 
-    bool idleToPatrolFunction()
+    private bool anyStateToAtk()
     {
-        return true;
+        throw new NotImplementedException();
     }
+
+    private bool idleToPatrol()
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool chaseToIdle()
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool patrolToChase()
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool patrolToIdle()
+    {
+        throw new NotImplementedException();
+    }
+
     
     //void Update()
     //{
