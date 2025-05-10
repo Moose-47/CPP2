@@ -6,7 +6,7 @@ public class _Enemy : MonoBehaviour
 {
     public enum EnemyState
     {
-        Chase, Patrol
+        Chase, Patrol, Attack
     }
     [Header("References")]
     public Transform player;

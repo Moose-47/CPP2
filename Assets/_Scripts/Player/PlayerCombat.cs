@@ -5,6 +5,7 @@ public class PlayerCombat : MonoBehaviour
 {
     private PlayerState playerState;
     private PlayerAnimations anim;
+    private Weapon weapon;
 
     private Coroutine attackCoroutine;
     void Awake()
@@ -13,6 +14,10 @@ public class PlayerCombat : MonoBehaviour
         anim = GetComponent<PlayerAnimations>();
     }
 
+    public void SetWeapon(Weapon newWeapon)
+    {
+        weapon = newWeapon;
+    }
     public void Attack()
     {
         StartAttack();
@@ -34,6 +39,9 @@ public class PlayerCombat : MonoBehaviour
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
             playerState.isAttacking = true;
             attackCoroutine = StartCoroutine(EndAttackAfter(0.75f));
+
+            weapon.StartAttack();
+
             return;
         }
     }

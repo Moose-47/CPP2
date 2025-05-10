@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using UnityEngine;
-using static EnemyBaseClass;
+
 
 [RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
 public class Weapon : MonoBehaviour
 {
     Rigidbody rb;
     BoxCollider bc;
-
+    public int wepDmg;
+    private bool isAttacking = false;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -16,13 +17,17 @@ public class Weapon : MonoBehaviour
 
     public void Equip(Collider playerCollider, Transform weaponAttachPoint)
     {
-        //Setting our rigidbody to kinematic because we don't want to move via physics anymore
         rb.isKinematic = true;
-        //Setting our box collider to be a trigger so we are not blocked by the sword collision
         bc.isTrigger = true;
         transform.SetParent(weaponAttachPoint);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         Physics.IgnoreCollision(playerCollider, bc);
+
+        PlayerCombat playerCombat = weaponAttachPoint.root.GetComponent<PlayerCombat>();
+        if (playerCombat != null)
+        {
+            playerCombat.SetWeapon(this);
+        }
     }
 
     public void Drop(Collider playerCollider, Vector3 playerForward)
@@ -40,15 +45,43 @@ public class Weapon : MonoBehaviour
 
         Physics.IgnoreCollision(playerCollider, bc, false);
     }
+
+    public void StartAttack()
+    {
+        if (isAttacking) return; // Prevent starting another attack while one is already active
+
+        isAttacking = true;
+        bc.enabled = true;  // Enable the hitbox during the attack
+        StartCoroutine(AttackDuration()); // Start the attack duration coroutine
+    }
+    IEnumerator AttackDuration()
+    {
+        yield return new WaitForSeconds(0.75f); // Adjust this duration to match your attack animation time
+        EndAttack();
+    }
+    private void EndAttack()
+    {
+        isAttacking = false;
+        bc.enabled = false; // Disable the hitbox after the attack
+    }
     private void OnTriggerEnter(Collider other)
     {
-
-        if (other.CompareTag("Enemy"))
+        if (isAttacking && other.CompareTag("Enemy"))
         {
-            EnemyBaseClass enemy = other.GetComponentInChildren<EnemyBaseClass>();
-            if (enemy != null)
+            EnemyBaseClass oldEnemy = other.GetComponentInChildren<EnemyBaseClass>();
+            if (oldEnemy != null)
             {
-                enemy.TakeDamage(5);
+                oldEnemy.TakeDamage(wepDmg);
+            }
+
+            var enemyContext = other.GetComponent<EnemyStateMachine>();
+            if (enemyContext != null)
+            {
+                var enemy = enemyContext.Context;
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(wepDmg);
+                }
             }
         }
     }
