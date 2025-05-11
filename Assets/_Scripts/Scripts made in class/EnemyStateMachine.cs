@@ -31,7 +31,6 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
                 context.agent.velocity = Vector3.zero;
                 context.agent.isStopped = true;
             })
-
             .Build();
 
         patrolState = stateBuilder
@@ -41,6 +40,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
                 Debug.Log("Entering Patrol");
                 context.anim.SetBool("idle", false);
                 context.anim.SetBool("walk", true);
+                context.anim.SetBool("atk", false);
                 context.agent.isStopped = false;
             })
             .OnUpdate(OnPatrolUpdate)
@@ -53,6 +53,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
                 Debug.Log("Entering Chase");               
                 context.anim.SetBool("idle", false);
                 context.anim.SetBool("walk", true);
+                context.anim.SetBool("atk", false);
                 context.agent.isStopped = false;
             })
             .OnUpdate(OnChaseUpdate)
@@ -62,19 +63,18 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
             .SetName("attack")
             .OnEnter(() =>
             {
+                context.agent.isStopped = true;
+                context.agent.velocity = Vector3.zero;
                 Debug.Log("Entering Attack");
                 context.anim.SetBool("idle", false);
                 context.anim.SetBool("walk", false);
-                context.anim.SetTrigger("atk");
-
-                if (context.attackHitBox != null)
-                {
-                    context.attackHitBox.enabled = true;
-                }
+                context.anim.SetBool("atk", true);
             })
             .OnUpdate(OnAttackUpdate)
             .OnExit(() =>
             {
+                context.agent.isStopped = false;
+
                 if (context.attackHitBox != null)
                 {
                     context.attackHitBox.enabled = false;
@@ -86,9 +86,9 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
             .SetName("death")
             .OnEnter(() =>
             {
-                Debug.Log("Enemy Died");
                 context.anim.SetBool("idle", false);
                 context.anim.SetBool("walk", false);
+                context.anim.SetBool("atk", false);
                 context.anim.SetTrigger("die");
 
                 context.agent.isStopped = true;
@@ -108,6 +108,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
         RegisterState("death", deathState);
 
         // Transitions
+        #region Idle to-
         idleState.AddTransition(this)
             .To(patrolState)
             .When(() => IsPlayerTooFar() && context.PathIndex > 0)
@@ -115,14 +116,41 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
 
         idleState.AddTransition(this)
             .To(chaseState)
-            .When(CanSeePlayer)
+            .When(() => CanSeePlayer() && !IsPlayerInAttackRange())
             .Build();
 
+        idleState.AddTransition(this)
+            .To(atkState)
+            .When(() => 
+                IsPlayerInAttackRange() 
+                && !context.attackHitBox.enabled 
+                && !context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk"))
+            .Build();
+
+        idleState.AddTransition(this)
+            .To(deathState)
+            .When(() => context.IsDead)
+            .Build();
+        #endregion
+
+        #region Patrol to-
         patrolState.AddTransition(this)
             .To(chaseState)
             .When(CanSeePlayer)
             .Build();
 
+        patrolState.AddTransition(this)
+            .To(idleState)
+            .When(() => context.PathIndex == 0)
+            .Build();
+
+        patrolState.AddTransition(this)
+            .To(deathState)
+            .When(() => context.IsDead)
+            .Build();
+        #endregion
+
+        #region Chase to-
         chaseState.AddTransition(this)
             .To(idleState)
             .When(() => IsPlayerTooFar() && context.PathIndex == 0)
@@ -135,32 +163,55 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
 
         chaseState.AddTransition(this)
             .To(atkState)
-            .When(() => Vector3.Distance(context.Player.position, context.agent.transform.position) < context.attackRange)
+            .When(() => IsPlayerInAttackRange() && !context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk"))
             .Build();
 
         chaseState.AddTransition(this)
             .To(deathState)
             .When(() => context.IsDead)
             .Build();
+        #endregion
 
+        #region Attack to-
         atkState.AddTransition(this)
             .To(deathState)
             .When(() => context.IsDead)
             .Build();
 
-        deathState.AddTransition(this)
+        atkState.AddTransition(this)
+            .To(idleState)
+            .When(() => 
+                IsPlayerInAttackRange() 
+                && context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk")
+                && context.anim.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.99f)
+            .Build();
+
+        atkState.AddTransition(this)
+            .To(chaseState)
+            .When(() => 
+                CanSeePlayer() && !IsPlayerInAttackRange() 
+                && !context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk"))
+            .Build();
+
+        atkState.AddTransition(this) //This transition is to prevent state bricking
+            .To(idleState)
+            .When(() => 
+                !IsPlayerInAttackRange() 
+                && context.anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+            .Build();
+        #endregion
+
+        deathState.AddTransition(this) //To ensure that the enemy stays in the death state upon dying.
             .To(deathState)
             .When(() => context.IsDead)
             .Build();
 
-        ChangeState(idleState);
-
+        ChangeState(idleState); //Default state on start
     }
     public bool CanSeePlayer()
     {
         if (context.Player == null)
         {
-            Debug.Log("player not found for canseeplayer");
             return false;
         }
         float dist = Vector3.Distance(context.Player.position, context.agent.nextPosition);
@@ -202,11 +253,16 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
     {
         context.agent.SetDestination(context.agent.transform.position);
 
-        Debug.Log("Attacking player...");
+        float time = context.anim.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        float target = context.atkHitBoxTimer;
+        if (context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk") && time >= target && time < target + 0.02f)
+            context.attackHitBox.enabled = true;
+        if (context.anim.GetCurrentAnimatorStateInfo(0).IsName("E atk") && time > target * 2f)
+            context.attackHitBox.enabled = false;
     }
     private void AssignAttackHitBox()
     {
-        Collider[] colliders = context.agent.GetComponentsInChildren<Collider>();
+        SphereCollider[] colliders = context.agent.GetComponentsInChildren<SphereCollider>();
         foreach (var col in colliders)
         {
             if (col.CompareTag("enemy atk"))

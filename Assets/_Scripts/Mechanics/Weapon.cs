@@ -19,6 +19,7 @@ public class Weapon : MonoBehaviour
     {
         rb.isKinematic = true;
         bc.isTrigger = true;
+        bc.enabled = false;
         transform.SetParent(weaponAttachPoint);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         Physics.IgnoreCollision(playerCollider, bc);
@@ -48,11 +49,11 @@ public class Weapon : MonoBehaviour
 
     public void StartAttack()
     {
-        if (isAttacking) return; // Prevent starting another attack while one is already active
+        if (isAttacking) return; //Prevent starting another attack while one is already active
 
         isAttacking = true;
-        bc.enabled = true;  // Enable the hitbox during the attack
-        StartCoroutine(AttackDuration()); // Start the attack duration coroutine
+        bc.enabled = true;  //Enable the hitbox during the attack
+        StartCoroutine(AttackDuration()); //Start the attack duration coroutine
     }
     IEnumerator AttackDuration()
     {
@@ -80,7 +81,9 @@ public class Weapon : MonoBehaviour
                 var enemy = enemyContext.Context;
                 if (enemy != null)
                 {
+                    bc.enabled = false;
                     enemy.TakeDamage(wepDmg);
+                    Debug.LogWarning(enemy.CurrentHealth);
                 }
             }
         }

@@ -2,23 +2,22 @@ using UnityEngine;
 
 public class EnemyMeleeHitBox : MonoBehaviour
 {
+    public int dmg;
+    public SphereCollider sphereCollider;
 
-    public class AttackHitbox : MonoBehaviour
+    private void Start()
     {
-        public EnemyContext context;
-        public int dmg;
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Player"))
-            {
-                //Apply damage to the player
-                Debug.Log("Hit player with attack!");
-                GameManager.Instance.PlayerHealth -= dmg;
-
-                //Disable the hitbox immediately after hitting
-                context.attackHitBox.enabled = false;
-            }
-        }
+        sphereCollider = GetComponent<SphereCollider>();
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            //Apply damage to the player
+            GameManager.Instance.PlayerHealth -= dmg;
+
+            //Disable the hitbox immediately after hitting
+            sphereCollider.enabled = false;
+        }
+    }    
 }

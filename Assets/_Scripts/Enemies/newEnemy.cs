@@ -18,6 +18,8 @@ public class newEnemy : MonoBehaviour
     public int hp = 15;
     public float followRange = 15f;
     public float attackRange = 2f;
+    public float WhenToActivateHitBoxOnMeleeAtk = 0.6f;
+
     #region player spawning
     private void OnEnable()
     {
@@ -43,7 +45,8 @@ public class newEnemy : MonoBehaviour
             PathIndex = pathIndex,
             followRange = followRange,
             attackRange = attackRange,
-            anim = GetComponent<Animator>()
+            anim = GetComponent<Animator>(),
+            atkHitBoxTimer = WhenToActivateHitBoxOnMeleeAtk
         };
 
         if (player == null)
@@ -56,7 +59,6 @@ public class newEnemy : MonoBehaviour
     {
         player = playerObj.transform;
         context.Player = player;
-        Debug.Log("Player assigned: " + player);
 
         if (state == null)
         {
