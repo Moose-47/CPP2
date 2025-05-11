@@ -68,4 +68,10 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
         playerState.Die();
         anim.deathAnimation();
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Ipickups pickup = other.GetComponent<Ipickups>();
+        if (pickup != null) pickup.Pickup(this);
+    }
 }

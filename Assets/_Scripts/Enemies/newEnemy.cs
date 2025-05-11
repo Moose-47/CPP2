@@ -6,7 +6,7 @@ public class newEnemy : MonoBehaviour
 {
     public Transform[] path;
     public float distThreshold = 0.2f;
-
+    
     private NavMeshAgent agent;
     private Transform player;
 
@@ -19,6 +19,10 @@ public class newEnemy : MonoBehaviour
     public float followRange = 15f;
     public float attackRange = 2f;
     public float WhenToActivateHitBoxOnMeleeAtk = 0.6f;
+
+    private CapsuleCollider cc;
+
+    [SerializeField] private GameObject deathEffectPrefab;
 
     #region player spawning
     private void OnEnable()
@@ -34,6 +38,7 @@ public class newEnemy : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        cc = GetComponent<CapsuleCollider>();
 
         context = new EnemyContext()
         {
@@ -46,7 +51,9 @@ public class newEnemy : MonoBehaviour
             followRange = followRange,
             attackRange = attackRange,
             anim = GetComponent<Animator>(),
-            atkHitBoxTimer = WhenToActivateHitBoxOnMeleeAtk
+            atkHitBoxTimer = WhenToActivateHitBoxOnMeleeAtk,
+            deathEffectPrefab = deathEffectPrefab,
+            cc = cc
         };
 
         if (player == null)
@@ -77,15 +84,5 @@ public class newEnemy : MonoBehaviour
         if (player == null || context.IsDead) return;
 
         state.StateMachineUpdate();
-    }
-
-    public void TakeDamage(int damage)
-    {
-        context.TakeDamage(damage);
-
-        if (context.IsDead)
-        {
-            state.ChangeState(state.deathState);
-        }
     }
 }

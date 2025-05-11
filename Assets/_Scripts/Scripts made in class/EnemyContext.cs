@@ -7,7 +7,7 @@ public class EnemyContext : ReactiveContext<EnemyContext>
     [HideInInspector] public bool IsDead = false;
     public int baseHealth;
     public int maxHealth;
-
+    public CapsuleCollider cc;
     private int currentHealth;
     public int CurrentHealth
     {
@@ -24,6 +24,7 @@ public class EnemyContext : ReactiveContext<EnemyContext>
     public float followRange = 15f;
     public float attackRange = 2f;
     public float atkHitBoxTimer = 0.6f;
+    public GameObject deathEffectPrefab;
     public Animator anim;
 
     public void TakeDamage(int damage)

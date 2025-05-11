@@ -3,6 +3,7 @@ using StateMachine;
 using UnityEngine.AI;
 using StateMachine.Editor;
 using System;
+using System.Collections;
 
 public class EnemyStateMachine : StateMachine<EnemyContext>
 {
@@ -93,10 +94,14 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
 
                 context.agent.isStopped = true;
                 context.agent.velocity = Vector3.zero;
+
+                context.cc.enabled = false;
+
                 if (context.attackHitBox != null)
                 {
                     context.attackHitBox.enabled = false;
                 }
+                StartCoroutine(DeathItemSpawn(4.9f));
                 Destroy(gameObject, 5f);
             })
             .Build();
@@ -201,11 +206,6 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
             .Build();
         #endregion
 
-        deathState.AddTransition(this) //To ensure that the enemy stays in the death state upon dying.
-            .To(deathState)
-            .When(() => context.IsDead)
-            .Build();
-
         ChangeState(idleState); //Default state on start
     }
     public bool CanSeePlayer()
@@ -273,6 +273,12 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
         }
 
         Debug.LogWarning("No attack hitbox found with tag 'enemy atk'.");
+    }
+    private IEnumerator DeathItemSpawn(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (context.deathEffectPrefab != null)
+            Instantiate(context.deathEffectPrefab, transform.position, Quaternion.identity);
     }
     public void StateMachineUpdate()
     {
