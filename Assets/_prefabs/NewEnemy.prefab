@@ -221,7 +221,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 8
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -270,9 +270,11 @@ MonoBehaviour:
   path: []
   distThreshold: 0.2
   hp: 15
-  followRange: 15
+  followRange: 25
   attackRange: 1.5
   WhenToActivateHitBoxOnMeleeAtk: 0.3
+  deathEffectPrefab: {fileID: 421701350983203923, guid: b0431cd7093079945a9215e1eeafda79, type: 3}
+  healthBarPrefab: {fileID: 5813859473873894235, guid: 9fff187130d7da84fbd2ccad7c2882f3, type: 3}
 --- !u!114 &6459669561875531415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,6 +288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 0
+  defaultState: 
 --- !u!1001 &3327043746914358322
 PrefabInstance:
   m_ObjectHideFlags: 0

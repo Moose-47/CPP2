@@ -24,6 +24,8 @@ public class newEnemy : MonoBehaviour
 
     [SerializeField] private GameObject deathEffectPrefab;
 
+    [SerializeField] private GameObject healthBarPrefab;
+    private EnemyHealthBar healthBar;
     #region player spawning
     private void OnEnable()
     {
@@ -39,6 +41,9 @@ public class newEnemy : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         cc = GetComponent<CapsuleCollider>();
+        GameObject bar = Instantiate(healthBarPrefab);
+        healthBar = bar.GetComponent<EnemyHealthBar>();
+
 
         context = new EnemyContext()
         {
@@ -53,9 +58,11 @@ public class newEnemy : MonoBehaviour
             anim = GetComponent<Animator>(),
             atkHitBoxTimer = WhenToActivateHitBoxOnMeleeAtk,
             deathEffectPrefab = deathEffectPrefab,
-            cc = cc
+            cc = cc,
+            healthBar = healthBar
         };
-
+        healthBar.Initialize(transform, context);
+        healthBar.SetHealth(context.CurrentHealth, context.maxHealth);
         if (player == null)
         {
             player = GameObject.FindWithTag("Player")?.transform;
@@ -65,6 +72,7 @@ public class newEnemy : MonoBehaviour
     private void OnPlayerSpawnedCallback(Player playerObj)
     {
         player = playerObj.transform;
+        context._player = playerObj;
         context.Player = player;
 
         if (state == null)
@@ -82,7 +90,6 @@ public class newEnemy : MonoBehaviour
     private void Update()
     {
         if (player == null || context.IsDead) return;
-
         state.StateMachineUpdate();
     }
 }

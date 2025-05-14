@@ -20,6 +20,7 @@ public class EnemyContext : ReactiveContext<EnemyContext>
     public Transform[] Path;
     public int PathIndex;
     [HideInInspector] public Transform Player;
+    [HideInInspector] public Player _player;
 
     public float followRange = 15f;
     public float attackRange = 2f;
@@ -27,15 +28,22 @@ public class EnemyContext : ReactiveContext<EnemyContext>
     public GameObject deathEffectPrefab;
     public Animator anim;
 
+    public EnemyHealthBar healthBar;
     public void TakeDamage(int damage)
     {
         // Reduce health
         CurrentHealth -= damage;
+        
+        if (healthBar != null)
+            healthBar.SetHealth(CurrentHealth, maxHealth);
 
         // Check if health is 0 or below
         if (CurrentHealth <= 0 && !IsDead)
         {
             IsDead = true;
+            attackHitBox.enabled = false;
+            if (healthBar != null)
+                GameObject.Destroy(healthBar.gameObject);
         }
     }
 }

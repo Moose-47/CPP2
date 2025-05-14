@@ -2,7 +2,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 {
     [HideInInspector] public Locomotion locomotion;
@@ -12,6 +11,8 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
     [HideInInspector] public ProjectActions input;
     [HideInInspector] public LockOn lockOn;
     [HideInInspector] public CameraController cameraController;
+
+    [HideInInspector] public bool isDead { get; private set; }
     private void OnEnable()
     {
         locomotion = GetComponentInChildren<Locomotion>();
@@ -65,6 +66,7 @@ public class Player : MonoBehaviour, ProjectActions.IOverworldActions
 
     public void die()
     {
+        isDead = true;
         playerState.Die();
         anim.deathAnimation();
     }

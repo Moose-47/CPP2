@@ -13,6 +13,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
     public IState<EnemyContext> atkState;
     public IState<EnemyContext> deathState;
 
+    [SerializeField] private String defaultState;
     public void InitializeEnemy(EnemyContext ctx)
     {
         context = ctx;
@@ -25,7 +26,6 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
             .SetName("idle")
             .OnEnter(() =>
             {
-
                 Debug.Log("Entering Idle");
                 context.anim.SetBool("idle", true);
                 context.anim.SetBool("walk", false);
@@ -116,7 +116,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
         #region Idle to-
         idleState.AddTransition(this)
             .To(patrolState)
-            .When(() => IsPlayerTooFar() && context.PathIndex > 0)
+            .When(() => IsPlayerTooFar() && context.Path.Length > 0)
             .Build();
 
         idleState.AddTransition(this)
@@ -146,7 +146,7 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
 
         patrolState.AddTransition(this)
             .To(idleState)
-            .When(() => context.PathIndex == 0)
+            .When(() => context.Path.Length == 0)
             .Build();
 
         patrolState.AddTransition(this)
@@ -158,12 +158,12 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
         #region Chase to-
         chaseState.AddTransition(this)
             .To(idleState)
-            .When(() => IsPlayerTooFar() && context.PathIndex == 0)
+            .When(() => IsPlayerTooFar() && context.Path.Length == 0)
             .Build();
 
         chaseState.AddTransition(this)
             .To(patrolState)
-            .When(() => IsPlayerTooFar() && context.PathIndex > 0)
+            .When(() => IsPlayerTooFar() && context.Path.Length > 0)
             .Build();
 
         chaseState.AddTransition(this)
@@ -206,11 +206,23 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
             .Build();
         #endregion
 
-        ChangeState(idleState); //Default state on start
+        #region State to when player dead
+        chaseState.AddTransition(this)
+            .To(idleState)
+            .When(() => context._player != null && context._player.isDead)
+            .Build();
+
+        atkState.AddTransition(this)
+            .To(idleState)
+            .When(() => context._player != null && context._player.isDead)
+            .Build();
+        #endregion
+
+        ChangeState(defaultState); //Default state on start
     }
     public bool CanSeePlayer()
     {
-        if (context.Player == null)
+        if (context.Player == null || context._player == null || context._player.isDead)
         {
             return false;
         }
@@ -222,13 +234,22 @@ public class EnemyStateMachine : StateMachine<EnemyContext>
     }
     private bool IsPlayerTooFar()
     {
-        float dist = Vector3.Distance(context.Player.position, context.agent.nextPosition);
+        if (context.Player == null || context._player == null || context._player.isDead)
+        {
+            return true;
+        }
+            float dist = Vector3.Distance(context.Player.position, context.agent.nextPosition);
         if (dist > context.followRange)
             return true;
         else return false;
     }
     private bool IsPlayerInAttackRange()
     {
+        if (context.Player == null || context._player == null || context._player.isDead)
+        {
+            return false;
+        }
+
         return Vector3.Distance(context.Player.position, context.agent.nextPosition) < context.attackRange;
     }
     private void OnPatrolUpdate()

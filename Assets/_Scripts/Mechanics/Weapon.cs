@@ -34,6 +34,7 @@ public class Weapon : MonoBehaviour
     public void Drop(Collider playerCollider, Vector3 playerForward)
     {
         transform.parent = null;
+        bc.enabled = true;
         rb.isKinematic = false;
         bc.isTrigger = false;
         rb.AddForce(playerForward * 3, ForceMode.Impulse);
@@ -52,11 +53,13 @@ public class Weapon : MonoBehaviour
         if (isAttacking) return; //Prevent starting another attack while one is already active
 
         isAttacking = true;
-        bc.enabled = true;  //Enable the hitbox during the attack
+        //bc.enabled = true;  //Enable the hitbox during the attack
         StartCoroutine(AttackDuration()); //Start the attack duration coroutine
     }
     IEnumerator AttackDuration()
     {
+        yield return new WaitForSeconds(0.2f);
+        bc.enabled = true;
         yield return new WaitForSeconds(0.75f); // Adjust this duration to match your attack animation time
         EndAttack();
     }

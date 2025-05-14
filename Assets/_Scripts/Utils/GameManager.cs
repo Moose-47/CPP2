@@ -19,8 +19,8 @@ public class GameManager : Singleton<GameManager>
 
     [Header("Game Stats")]
     [SerializeField] private int _score = 0;
-    [SerializeField] private int maxHP = 5;
-    [SerializeField] private int _playerHealth = 5;
+    [SerializeField] private int maxHP = 6;
+    [SerializeField] private int _playerHealth = 6;
 
     public int Score
     {
@@ -46,7 +46,6 @@ public class GameManager : Singleton<GameManager>
                 _player.die();
                 StartCoroutine(playerDeath(3f));
                 Debug.Log("Player dead!");
-                _playerHealth = maxHP;
             }
         }
     }
@@ -82,8 +81,11 @@ public class GameManager : Singleton<GameManager>
     IEnumerator playerDeath(float delay)
     {
         yield return new WaitForSeconds(delay);
-        Destroy(playerPrefab);
-        SceneManager.LoadScene("Game");
+        Destroy(GameManager.Instance);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        _playerHealth = maxHP;
+        SceneManager.LoadScene("GameOver");
     }
 
     public void ChangeScene(string sceneName)

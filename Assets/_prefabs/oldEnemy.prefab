@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 488496387062045907}
   - component: {fileID: 1298738421005405210}
   m_Layer: 0
-  m_Name: Mutant Enemy
+  m_Name: oldEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

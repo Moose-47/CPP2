@@ -14,7 +14,7 @@ public class Bootstrapper : Singleton<Bootstrapper>
 
     private void Start()
     {
-        CheckScene("Game");
+        CheckScene("Title");
     }
 
     public static void CheckScene(string sceneName)
